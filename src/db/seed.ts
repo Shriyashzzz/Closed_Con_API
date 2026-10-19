@@ -1,6 +1,7 @@
-import { drizzle } from "drizzle-orm/node-postgres"; // Replace with your database driver (e.g., postgres-js, neon, etc.)
+import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import {
+  usersAuth,
   usersTable,
   friendRequestTable,
   friendsTable,
@@ -23,37 +24,70 @@ async function seed() {
   await db.delete(friendsTable);
   await db.delete(friendRequestTable);
   await db.delete(usersTable);
+  await db.delete(usersAuth);
 
   console.log("Cleared existing data.");
 
-  // 2. Insert Users
+  // 2. Insert Authentication Records (usersAuth)
+  const insertedAuth = await db
+    .insert(usersAuth)
+    .values([
+      {
+        email: "alice@example.com",
+        password: "$2b$10$YourHashedPasswordHere1", // Placeholder hashed password
+        role: "User",
+      },
+      {
+        email: "bob@example.com",
+        password: "$2b$10$YourHashedPasswordHere2",
+        role: "User",
+      },
+      {
+        email: "charlie@example.com",
+        password: "$2b$10$YourHashedPasswordHere3",
+        role: "Tester",
+      },
+      {
+        email: "diana@example.com",
+        password: "$2b$10$YourHashedPasswordHere4",
+        role: "Admin",
+      },
+    ])
+    .returning();
+
+  console.log(`Inserted ${insertedAuth.length} auth records.`);
+
+  // Map auth records by email for lookup
+  const authByEmail = Object.fromEntries(insertedAuth.map((a) => [a.email, a]));
+
+  // 3. Insert User Profiles (usersTable linked to authId)
   const insertedUsers = await db
     .insert(usersTable)
     .values([
       {
+        authId: authByEmail["alice@example.com"]!.id,
         name: "Alice Johnson",
-        email: "alice@example.com",
         dob: "1995-04-12",
         profilePic: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alice",
         bio: "Software developer and coffee lover. Always down for tech talk!",
       },
       {
+        authId: authByEmail["bob@example.com"]!.id,
         name: "Bob Smith",
-        email: "bob@example.com",
         dob: "1992-08-23",
         profilePic: "https://api.dicebear.com/7.x/avataaars/svg?seed=Bob",
         bio: "Digital artist & gamer. Building worlds in Blender.",
       },
       {
+        authId: authByEmail["charlie@example.com"]!.id,
         name: "Charlie Brown",
-        email: "charlie@example.com",
         dob: "1998-11-05",
         profilePic: "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie",
         bio: "Avid reader and trail runner. Catch me in the mountains.",
       },
       {
+        authId: authByEmail["diana@example.com"]!.id,
         name: "Diana Prince",
-        email: "diana@example.com",
         dob: "1990-01-30",
         profilePic: "https://api.dicebear.com/7.x/avataaars/svg?seed=Diana",
         bio: "Product manager, amateur chef, and dog mom.",
@@ -61,11 +95,11 @@ async function seed() {
     ])
     .returning();
 
-  console.log(`Inserted ${insertedUsers.length} users.`);
+  console.log(`Inserted ${insertedUsers.length} user profiles.`);
 
   const users = Object.fromEntries(insertedUsers.map((u) => [u.name, u]));
 
-  // 3. Insert Friend Requests (Pending, Accepted, Blocked)
+  // 4. Insert Friend Requests (Pending, Accepted, Blocked)
   const friendRequests = await db
     .insert(friendRequestTable)
     .values([
@@ -106,7 +140,7 @@ async function seed() {
     };
   }
 
-  // 4. Insert Friends (only for accepted friend requests)
+  // 5. Insert Friends (only for accepted friend requests)
   const insertedFriends = await db
     .insert(friendsTable)
     .values([
@@ -129,7 +163,6 @@ async function seed() {
     const userId1 = Math.min(senderId, recipientId);
     const userId2 = Math.max(senderId, recipientId);
 
-    // Set timestamp back by offset minutes
     const dateTime = new Date(Date.now() - timeOffsetMinutes * 60 * 1000);
 
     return {
@@ -141,7 +174,7 @@ async function seed() {
     };
   }
 
-  // 5. Insert Messages (between active friends)
+  // 6. Insert Messages (between active friends)
   const aliceId = users["Alice Johnson"]!.id;
   const bobId = users["Bob Smith"]!.id;
   const charlieId = users["Charlie Brown"]!.id;
