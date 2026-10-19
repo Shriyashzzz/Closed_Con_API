@@ -1,0 +1,36 @@
+{
+  "name": "closed_con_api",
+  "version": "1.0.0",
+  "description": "JSON API for Closed Con Messaging App ",
+  "homepage": "https://github.com/Shriyashzzz/Closed_Con_API#readme",
+  "bugs": {
+    "url": "https://github.com/Shriyashzzz/Closed_Con_API/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Shriyashzzz/Closed_Con_API.git"
+  },
+  "license": "MIT",
+  "author": "Shriyash Ghimire",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+  },
+  "dependencies": {
+    "dotenv": "^18.0.8",
+    "drizzle-orm": "^0.45.4",
+    "express": "^5.3.0",
+    "express-validator": "^7.3.2",
+    "jest": "^30.5.2",
+    "pg": "^8.23.1",
+    "supertest": "^7.3.1",
+    "typescript": "^7.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "@types/pg": "^8.23.1",
+    "drizzle-kit": "^0.31.11",
+    "tsx": "^4.23.15"
+  }
+}
