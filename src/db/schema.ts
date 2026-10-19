@@ -12,13 +12,25 @@ import {
 import { check } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
+export const role = pgEnum("Role", ["User", "Tester", "Admin"]);
+
 export const statusEnum = pgEnum("status", ["pending", "accepted", "blocked"]);
 
-export const usersTable = pgTable("users", {
+export const usersAuth = pgTable("UserAuth", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  email: varchar({ length: 255 }).notNull().unique(),
+  password: text().notNull(),
+  role: role().notNull().default("User"),
+});
+
+export const usersTable = pgTable("Users", {
+  id: integer().primaryKey().generatedAlwaysAsIdentity(),
+  authId: integer()
+    .notNull()
+    .unique()
+    .references(() => usersAuth.id, { onDelete: "cascade" }),
   name: varchar({ length: 255 }).notNull().unique(),
   dob: date().notNull(),
-  email: varchar({ length: 255 }).notNull().unique(),
   profilePic: text("profile_pic_url"), // main blob needs to be stored elsewhere
   bio: varchar({ length: 800 }),
 });
@@ -27,7 +39,7 @@ export const usersTable = pgTable("users", {
 //only create if the friendRequest changes to 'accpeted'
 
 export const friendsTable = pgTable(
-  "friends",
+  "Friends",
   {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     userId1: integer()
@@ -52,7 +64,7 @@ export const friendsTable = pgTable(
 // messages database // make sure to ensure friendsTable has the adresse/sender as friends before sending
 
 export const messagesTable = pgTable(
-  "messages",
+  "Messages",
   {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     userId1: integer()
@@ -81,7 +93,7 @@ export const messagesTable = pgTable(
 );
 
 export const friendRequestTable = pgTable(
-  "friendRequest",
+  "FriendRequest",
   {
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     requestId: integer()
