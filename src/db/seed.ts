@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/node-postgres";
-import { Pool } from "pg";
+import db from "../config/drizzle.js";
+
 import {
   usersAuth,
   usersTable,
@@ -7,14 +8,6 @@ import {
   friendsTable,
   messagesTable,
 } from "./schema.js";
-
-const pool = new Pool({
-  connectionString:
-    process.env.DATABASE_URL ||
-    "postgres://postgres:postgres@localhost:5432/mydb",
-});
-
-const db = drizzle(pool);
 
 async function seed() {
   console.log("🌱 Starting database seed...");
@@ -232,12 +225,9 @@ async function seed() {
 
   console.log(`Inserted ${insertedMessages.length} messages.`);
   console.log("✅ Seeding completed successfully!");
-
-  await pool.end();
 }
 
 seed().catch((err) => {
   console.error("❌ Seeding failed:", err);
-  pool.end();
   process.exit(1);
 });
