@@ -15,7 +15,9 @@
   "type": "module",
   "main": "server.js",
   "scripts": {
-    "test": "NODE_OPTIONS=--experimental-vm-modules jest"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest",
+    "dev": "tsx watch src/server.ts ",
+    "start": "node dist/server.js"
   },
   "dependencies": {
     "dotenv": "^18.0.8",
