@@ -1,48 +1,52 @@
-import passport, { type DoneCallback } from "passport";
+import { type DoneCallback } from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import db from "../config/drizzle.js";
 import { usersAuth } from "../db/schema.js";
 import { takeUniqueOrThrow } from "../util/db/takeUniuqeOrThrow.js";
 import bcrypt from "bcryptjs";
-import { AppError } from "../util/Error.js";
+import { AppError } from "../util/error.js";
 import type { NextFunction, Request, Response } from "express";
 import { eq } from "drizzle-orm";
 
-passport.use(
-  new LocalStrategy(
-    { usernameField: "email", passwordField: "password" },
-    async function (username, password, done) {
-      try {
-        //check strategy
+const localStart = new LocalStrategy(
+  { usernameField: "email", passwordField: "password" },
+  async function (username, password, done) {
+    try {
+      //check strategy
 
-        const user = await db
-          .select()
-          .from(usersAuth)
-          .where(eq(usersAuth.email, username))
-          .then(takeUniqueOrThrow);
-        if (user) {
-          const isValidPassword = await bcrypt.compare(password, user.password);
-          if (isValidPassword) {
-            return done(null, user);
-          } else {
-            return done(null, false, { message: "Incorrect Password" });
-          }
+      const user = await db
+        .select()
+        .from(usersAuth)
+        .where(eq(usersAuth.email, username))
+        .then(takeUniqueOrThrow);
+      if (user) {
+        const isValidPassword = await bcrypt.compare(password, user.password);
+        if (isValidPassword) {
+          return done(null, user);
         } else {
-          return done(null, false, { message: "User does not exist" });
+          return done(null, false, { message: "Incorrect Password" });
         }
-      } catch (e: any) {
-        //send the error to error logger method
-        return done(new AppError(e.msg, 500, false));
+      } else {
+        return done(null, false, { message: "User does not exist" });
       }
-    },
-  ),
+    } catch (e: any) {
+      //send the error to error logger method
+      return done(new AppError(e.msg, 500, false));
+    }
+  },
 );
 
-const serializer = (user: typeof usersAuth, done: DoneCallback) => {
+const serializer = (
+  user: Express.User,
+  done: (err: any, id: number) => void,
+) => {
   return done(null, user.id);
 };
 
-const derserializer = async (id: number, done: DoneCallback) => {
+const derserializer = async (
+  id: number,
+  done: (err: any, user?: Express.User | false | null) => void,
+) => {
   try {
     //fetch user
     const user = await db
@@ -74,4 +78,4 @@ export const handleLogOut = (
   });
 };
 
-export { LocalStrategy, serializer, derserializer };
+export { localStart, serializer, derserializer };
