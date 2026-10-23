@@ -1,0 +1,527 @@
+{
+  "id": "504642c4-dec0-4d6a-bea6-434c5c4c78e3",
+  "prevId": "2cbdfaf8-7ed5-494d-984c-cd00a5ff8547",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.FriendRequest": {
+      "name": "FriendRequest",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "FriendRequest_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "requestId": {
+          "name": "requestId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "addresseeId": {
+          "name": "addresseeId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "FriendRequest_requestId_Users_id_fk": {
+          "name": "FriendRequest_requestId_Users_id_fk",
+          "tableFrom": "FriendRequest",
+          "tableTo": "Users",
+          "columnsFrom": [
+            "requestId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "FriendRequest_addresseeId_Users_id_fk": {
+          "name": "FriendRequest_addresseeId_Users_id_fk",
+          "tableFrom": "FriendRequest",
+          "tableTo": "Users",
+          "columnsFrom": [
+            "addresseeId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "unique_check": {
+          "name": "unique_check",
+          "nullsNotDistinct": false,
+          "columns": [
+            "requestId",
+            "addresseeId"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "self_friend_request_not_allowed": {
+          "name": "self_friend_request_not_allowed",
+          "value": "\"FriendRequest\".\"requestId\" != \"FriendRequest\".\"addresseeId\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.Friends": {
+      "name": "Friends",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "Friends_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "userId1": {
+          "name": "userId1",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId2": {
+          "name": "userId2",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dateTime": {
+          "name": "dateTime",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "index_userId2": {
+          "name": "index_userId2",
+          "columns": [
+            {
+              "expression": "userId2",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Friends_userId1_Users_id_fk": {
+          "name": "Friends_userId1_Users_id_fk",
+          "tableFrom": "Friends",
+          "tableTo": "Users",
+          "columnsFrom": [
+            "userId1"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "Friends_userId2_Users_id_fk": {
+          "name": "Friends_userId2_Users_id_fk",
+          "tableFrom": "Friends",
+          "tableTo": "Users",
+          "columnsFrom": [
+            "userId2"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "unique_friends": {
+          "name": "unique_friends",
+          "nullsNotDistinct": false,
+          "columns": [
+            "userId1",
+            "userId2"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {
+        "friends_user_order_check": {
+          "name": "friends_user_order_check",
+          "value": "\"Friends\".\"userId1\" < \"Friends\".\"userId2\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.Messages": {
+      "name": "Messages",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "Messages_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "userId1": {
+          "name": "userId1",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "userId2": {
+          "name": "userId2",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dateTime": {
+          "name": "dateTime",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "sender": {
+          "name": "sender",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "message": {
+          "name": "message",
+          "type": "varchar(1000)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "msg_index": {
+          "name": "msg_index",
+          "columns": [
+            {
+              "expression": "userId1",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "userId2",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "dateTime",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "Messages_userId1_Users_id_fk": {
+          "name": "Messages_userId1_Users_id_fk",
+          "tableFrom": "Messages",
+          "tableTo": "Users",
+          "columnsFrom": [
+            "userId1"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "Messages_userId2_Users_id_fk": {
+          "name": "Messages_userId2_Users_id_fk",
+          "tableFrom": "Messages",
+          "tableTo": "Users",
+          "columnsFrom": [
+            "userId2"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "Messages_sender_Users_id_fk": {
+          "name": "Messages_sender_Users_id_fk",
+          "tableFrom": "Messages",
+          "tableTo": "Users",
+          "columnsFrom": [
+            "sender"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "messages_user_order_check": {
+          "name": "messages_user_order_check",
+          "value": "\"Messages\".\"userId1\" < \"Messages\".\"userId2\""
+        },
+        "ensure_sender_id_is_either_user1_or_user2": {
+          "name": "ensure_sender_id_is_either_user1_or_user2",
+          "value": "\"Messages\".\"sender\" = \"Messages\".\"userId1\" OR \"Messages\".\"sender\" = \"Messages\".\"userId2\""
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.UserAuth": {
+      "name": "UserAuth",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "UserAuth_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "email": {
+          "name": "email",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password": {
+          "name": "password",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "Role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'User'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "UserAuth_email_unique": {
+          "name": "UserAuth_email_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.Users": {
+      "name": "Users",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "Users_id_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "authId": {
+          "name": "authId",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "name": "name",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "dob": {
+          "name": "dob",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "profile_pic_url": {
+          "name": "profile_pic_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bio": {
+          "name": "bio",
+          "type": "varchar(800)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "Users_authId_UserAuth_id_fk": {
+          "name": "Users_authId_UserAuth_id_fk",
+          "tableFrom": "Users",
+          "tableTo": "UserAuth",
+          "columnsFrom": [
+            "authId"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "Users_authId_unique": {
+          "name": "Users_authId_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "authId"
+          ]
+        },
+        "Users_name_unique": {
+          "name": "Users_name_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "name"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.Role": {
+      "name": "Role",
+      "schema": "public",
+      "values": [
+        "User",
+        "Tester",
+        "Admin"
+      ]
+    },
+    "public.status": {
+      "name": "status",
+      "schema": "public",
+      "values": [
+        "pending",
+        "accepted",
+        "blocked"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

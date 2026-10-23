@@ -21,9 +21,10 @@ export const usersAuth = pgTable("UserAuth", {
   email: varchar({ length: 255 }).notNull().unique(),
   password: text().notNull(),
   role: role().notNull().default("User"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const usersTable = pgTable("Users", {
+export const profileTable = pgTable("Users", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   authId: integer()
     .notNull()
@@ -44,10 +45,10 @@ export const friendsTable = pgTable(
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     userId1: integer()
       .notNull()
-      .references(() => usersTable.id, { onDelete: "cascade" }),
+      .references(() => profileTable.id, { onDelete: "cascade" }),
     userId2: integer()
       .notNull()
-      .references(() => usersTable.id, { onDelete: "cascade" }),
+      .references(() => profileTable.id, { onDelete: "cascade" }),
     dateTime: timestamp("dateTime").notNull().defaultNow(),
   },
 
@@ -69,14 +70,14 @@ export const messagesTable = pgTable(
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     userId1: integer()
       .notNull()
-      .references(() => usersTable.id, { onDelete: "cascade" }),
+      .references(() => profileTable.id, { onDelete: "cascade" }),
     userId2: integer()
       .notNull()
-      .references(() => usersTable.id, { onDelete: "cascade" }),
+      .references(() => profileTable.id, { onDelete: "cascade" }),
     dateTime: timestamp("dateTime").notNull().defaultNow(),
     sender: integer()
       .notNull()
-      .references(() => usersTable.id, { onDelete: "cascade" }),
+      .references(() => profileTable.id, { onDelete: "cascade" }),
     message: varchar({ length: 1000 }).notNull(),
   },
   (table) => [
@@ -98,10 +99,10 @@ export const friendRequestTable = pgTable(
     id: integer().primaryKey().generatedAlwaysAsIdentity(),
     requestId: integer()
       .notNull()
-      .references(() => usersTable.id, { onDelete: "cascade" }),
+      .references(() => profileTable.id, { onDelete: "cascade" }),
     addresseeId: integer()
       .notNull()
-      .references(() => usersTable.id, { onDelete: "cascade" }),
+      .references(() => profileTable.id, { onDelete: "cascade" }),
     status: statusEnum().notNull().default("pending"),
   },
   (table) => [

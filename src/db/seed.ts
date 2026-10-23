@@ -3,7 +3,7 @@ import db from "../config/drizzle.js";
 
 import {
   usersAuth,
-  usersTable,
+  profileTable,
   friendRequestTable,
   friendsTable,
   messagesTable,
@@ -16,7 +16,7 @@ async function seed() {
   await db.delete(messagesTable);
   await db.delete(friendsTable);
   await db.delete(friendRequestTable);
-  await db.delete(usersTable);
+  await db.delete(profileTable);
   await db.delete(usersAuth);
 
   console.log("Cleared existing data.");
@@ -55,7 +55,7 @@ async function seed() {
 
   // 3. Insert User Profiles (usersTable linked to authId)
   const insertedUsers = await db
-    .insert(usersTable)
+    .insert(profileTable)
     .values([
       {
         authId: authByEmail["alice@example.com"]!.id,
