@@ -1,22 +1,36 @@
 import db from "../config/drizzle.js";
 import { usersAuth, profileTable } from "../db/schema.js";
 
-class authQueries {
-  signUp = async (
+class AuthQueries {
+  async signUp(
     email: string,
     hashedPassword: string,
     dob: string,
     username: string,
-  ) => {
-    const [user] = await db
-      .insert(usersAuth)
-      .values({ email: email.toLocaleLowerCase(), password: hashedPassword })
-      .returning({ id: usersAuth.id });
-    await db
-      .insert(profileTable)
-      .values({ authId: user!.id, name: username, dob: dob });
-    return user!.id;
-  };
+  ) {
+    return db.transaction(async (tx) => {
+      const [user] = await tx
+        .insert(usersAuth)
+        .values({ email: email.toLowerCase(), password: hashedPassword })
+        .returning({ id: usersAuth.id, email: usersAuth.email });
+      const [newProfile] = await tx
+        .insert(profileTable)
+        .values({
+          authId: user!.id,
+          name: username,
+          dob: dob,
+        })
+        .returning({
+          authId: profileTable.authId,
+          username: profileTable.name,
+          dob: profileTable.dob,
+        });
+      const userProfile = { ...newProfile, email: user!.email };
+      return userProfile;
+    });
+  }
 }
 
-export default authQueries;
+const authQuery = new AuthQueries();
+
+export default authQuery;
