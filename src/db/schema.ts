@@ -16,7 +16,7 @@ export const role = pgEnum("Role", ["User", "Tester", "Admin"]);
 
 export const statusEnum = pgEnum("status", ["pending", "accepted", "blocked"]);
 
-export const usersAuth = pgTable("UserAuth", {
+export const usersAuth = pgTable("UsersAuth", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   email: varchar({ length: 255 }).notNull().unique(),
   password: text().notNull(),
@@ -24,7 +24,7 @@ export const usersAuth = pgTable("UserAuth", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
-export const profileTable = pgTable("Users", {
+export const profileTable = pgTable("Profile", {
   id: integer().primaryKey().generatedAlwaysAsIdentity(),
   authId: integer()
     .notNull()
@@ -32,8 +32,8 @@ export const profileTable = pgTable("Users", {
     .references(() => usersAuth.id, { onDelete: "cascade" }),
   name: varchar({ length: 255 }).notNull().unique(),
   dob: date().notNull(),
-  profilePic: text("profile_pic_url"), // main blob needs to be stored elsewhere
-  bio: varchar({ length: 800 }),
+  profilePic: text("profile_pic_url"), // main blob needs to be stored in an s3 bucket
+  bio: varchar({ length: 80 }),
 });
 
 // stores the connection/friends relationship between users

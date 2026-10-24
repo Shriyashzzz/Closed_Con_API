@@ -5,6 +5,8 @@ import config from "./config/config.js";
 import { derserializer, localStart, serializer } from "./auth/passport.js";
 import connectPgSimple from "connect-pg-simple";
 import { pool } from "./config/drizzle.js";
+import { authRouter } from "./routers/authRouter.js";
+import { strayRouteHandler } from "./middlewares/strayRouteHandler.js";
 
 const PgSession = connectPgSimple(session);
 
@@ -12,9 +14,6 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.set("trust proxy", 1);
-
-app.use(passport.initialize());
-passport.use(localStart);
 
 app.use(
   session({
@@ -29,8 +28,16 @@ app.use(
     store: new PgSession({ pool: pool, createTableIfMissing: true }),
   }),
 );
+app.use(passport.initialize());
 app.use(passport.session());
+passport.use(localStart);
 passport.serializeUser(serializer);
 passport.deserializeUser(derserializer);
+
+// connecting indivisual routers to the express routes
+
+app.use("/api/auth", authRouter);
+
+app.use(strayRouteHandler); // handles stray routes
 
 export default app;

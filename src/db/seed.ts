@@ -8,6 +8,7 @@ import {
   friendsTable,
   messagesTable,
 } from "./schema.js";
+import bcrypt from "bcryptjs";
 
 async function seed() {
   console.log("🌱 Starting database seed...");
@@ -27,7 +28,7 @@ async function seed() {
     .values([
       {
         email: "alice@example.com",
-        password: "$2b$10$YourHashedPasswordHere1", // Placeholder hashed password
+        password: await bcrypt.hash("12345", 10), //hashed password
         role: "User",
       },
       {
