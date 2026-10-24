@@ -7,10 +7,10 @@ const isAuthenticated = (req: Request, res: Response, next: NextFunction) => {
   if (req.isAuthenticated()) {
     return res.status(200).json({
       authenticated: true,
-      user: { id: req.user.id, email: req.user.email },
+      user: { id: req.user.id },
     });
   } else {
-    return res.status(401).json({ authenticated: false }); // for redundancy sake
+    return res.status(401).json({ authenticated: false });
   }
 };
 
